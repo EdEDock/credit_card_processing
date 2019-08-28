@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<workflow-app xmlns="uri:oozie:workflow:0.2" name="casestudy_optimized">    
+	<start to="sqoop-node1"/>
+	<action name="sqoop-node1">    <!--node name-->         
+		<sqoop xmlns="uri:oozie:sqoop-action:0.2">            
+			<job-tracker>${jobTracker}</job-tracker>  <!--job tracking node is http://sandbox.hortonworks.com:8050 which is define in job properties-->             
+			<name-node>${nameNode}</name-node> <!--name node is http://sandbox.hortonworks.com:8020 which is define in job properties-->             
+			<prepare>                
+				<delete path="${nameNode}/user/maria_dev/Credit_Card_System/Customer/Optimized"/>            
+			</prepare>            
+			<configuration>                
+				<property>                    
+					<name>mapred.job.queue.name</name>                    
+					<value>${queueName}</value>
+                </property>            
+			</configuration>
+			<command>job --meta-connect jdbc:hsqldb:hsql://localhost:16000/sqoop --exec casestudy_customer</command> 
+			<archive>/user/oozie/share/lib/lib_20161025075203/sqoop/java-json.jar#java-json.jar</archive>
+		</sqoop>        
+		<ok to="sqoop-node2"/>       
+		<error to="fail"/>    
+	</action>    
+	<action name="sqoop-node2">    <!--node name-->         
+		<sqoop xmlns="uri:oozie:sqoop-action:0.2">            
+			<job-tracker>${jobTracker}</job-tracker>  <!--job tracking node is http://sandbox.hortonworks.com:8050 which is define in job properties-->             
+			<name-node>${nameNode}</name-node> <!--name node is http://sandbox.hortonworks.com:8020 which is define in job properties-->             
+			<prepare>                
+				<delete path="${nameNode}/user/maria_dev/Credit_Card_System/Time/Optimized/"/>            
+			</prepare>            
+			<configuration>                
+				<property>                    
+					<name>mapred.job.queue.name</name>                    
+					<value>${queueName}</value>
+                </property>            
+			</configuration>     
+			<command>job --meta-connect jdbc:hsqldb:hsql://localhost:16000/sqoop --exec casestudy_time</command> 
+			<archive>/user/oozie/share/lib/lib_20161025075203/sqoop/java-json.jar#java-json.jar</archive>
+		</sqoop>        
+		<ok to="sqoop-node3"/>    <!-- if everything is ok then go to hive node -->         
+		<error to="fail"/>  		
+	</action>
+	<action name="sqoop-node3">     
+		<sqoop xmlns="uri:oozie:sqoop-action:0.2">            
+			<job-tracker>${jobTracker}</job-tracker> 
+			<name-node>${nameNode}</name-node> 
+			<prepare>                
+				<delete path="${nameNode}/user/maria_dev/Credit_Card_System/Branch/Optimized"/>            
+			</prepare>            
+			<configuration>                
+				<property>                    
+					<name>mapred.job.queue.name</name>                    
+					<value>${queueName}</value>
+                </property>            
+			</configuration>        
+			<command>job --meta-connect jdbc:hsqldb:hsql://localhost:16000/sqoop --exec casestudy_branch</command> 
+			<archive>/user/oozie/share/lib/lib_20161025075203/sqoop/java-json.jar#java-json.jar</archive>			
+		</sqoop>        
+		<ok to="sqoop-node4"/>    <!-- if everything is ok then go to hive node -->         
+		<error to="fail"/>    
+	</action>    
+	<action name="sqoop-node4">    <!--node name-->         
+		<sqoop xmlns="uri:oozie:sqoop-action:0.2">            
+			<job-tracker>${jobTracker}</job-tracker>  <!--job tracking node is http://sandbox.hortonworks.com:8050 which is define in job properties-->             
+			<name-node>${nameNode}</name-node> <!--name node is http://sandbox.hortonworks.com:8020 which is define in job properties-->             
+			<prepare>                
+				<delete path="${nameNode}/user/maria_dev/Credit_Card_System/Credit_Card/Optimized"/>            
+			</prepare>            
+			<configuration>                
+				<property>                    
+					<name>mapred.job.queue.name</name>                    
+					<value>${queueName}</value>
+                </property>            
+			</configuration>
+			<command>job --meta-connect jdbc:hsqldb:hsql://localhost:16000/sqoop --exec casestudy_creditcard</command>
+			<archive>/user/oozie/share/lib/lib_20161025075203/sqoop/java-json.jar#java-json.jar</archive>		
+		</sqoop>        
+		<ok to="hive-node1"/>    <!-- if everything is ok then go to hive node -->         
+		<error to="fail"/>  		
+	</action>    
+	<action name="hive-node1">        
+		<hive xmlns="uri:oozie:hive-action:0.2">            
+			<job-tracker>${jobTracker}</job-tracker>            
+			<name-node>${nameNode}</name-node>                  
+			<configuration>                
+				<property>                    
+					<name>mapred.job.queue.name</name>                    
+					<value>${queueName}</value>                
+				</property>            
+			</configuration>            
+			<script>customer.hql</script>            
+		</hive>        
+		<ok to="hive-node2"/>        
+		<error to="fail"/>    
+	</action>
+	<action name="hive-node2">        
+		<hive xmlns="uri:oozie:hive-action:0.2">            
+			<job-tracker>${jobTracker}</job-tracker>            
+			<name-node>${nameNode}</name-node>                  
+			<configuration>                
+				<property>                    
+					<name>mapred.job.queue.name</name>                    
+					<value>${queueName}</value>                
+				</property>            
+			</configuration>            
+			<script>branch.hql</script>              
+		</hive>        
+		<ok to="hive-node3"/>        
+		<error to="fail"/>    
+	</action>    
+	<action name="hive-node3">        
+		<hive xmlns="uri:oozie:hive-action:0.2">            
+			<job-tracker>${jobTracker}</job-tracker>            
+			<name-node>${nameNode}</name-node>                  
+			<configuration>                
+				<property>                    
+					<name>mapred.job.queue.name</name>                    
+					<value>${queueName}</value>                
+				</property>            
+			</configuration>            
+			<script>time.hql</script>            
+		</hive>        
+		<ok to="hive-node4"/>        
+		<error to="fail"/>    
+	</action>    
+	<action name="hive-node4">        
+		<hive xmlns="uri:oozie:hive-action:0.2">            
+			<job-tracker>${jobTracker}</job-tracker>            
+			<name-node>${nameNode}</name-node>                  
+			<configuration>                
+				<property>                    
+					<name>mapred.job.queue.name</name>                    
+					<value>${queueName}</value>                
+				</property>            
+			</configuration>            
+			<script>creditcard.hql</script>            
+		</hive>        
+		<ok to="end"/>        
+		<error to="fail"/>    
+	</action>    
+	<kill name="fail">
+		<message>Sqoop failed, error message[${wf:errorMessage(wf:lastErrorNode())}]</message>    
+	</kill>    
+	<end name="end"/>
+</workflow-app>

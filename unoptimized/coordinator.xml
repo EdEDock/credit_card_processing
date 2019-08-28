@@ -1,0 +1,21 @@
+<coordinator-app 	xmlns="uri:oozie:coordinator:0.2" 
+					name="casestudy_unoptimized_coordinator" 
+					frequency="0/20 12-21 * * 2-6"
+					start="2019-04-09T00:00Z" 
+					end="2025-04-29T00:00Z"  
+					timezone="America/New_York">
+    
+   <controls>
+      <timeout>1</timeout>
+      <concurrency>1</concurrency>
+      <execution>LAST_ONLY</execution>
+      <throttle>1</throttle>
+   </controls>
+   
+   <action>
+      <workflow>
+         <app-path>/user/maria_dev/casestudy_files/unoptimized/workflow.xml</app-path>
+      </workflow>
+   </action>
+	
+</coordinator-app>

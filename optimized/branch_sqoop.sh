@@ -1,0 +1,13 @@
+sqoop job \
+--meta-connect jdbc:hsqldb:hsql://localhost:16000/sqoop \
+--create casestudy_branch \
+-- import \
+--connect jdbc:mysql://localhost/cdw_sapp \
+--driver com.mysql.jdbc.Driver \
+--query 'SELECT BRANCH_CODE,BRANCH_NAME,BRANCH_STREET,BRANCH_CITY,BRANCH_STATE,LPAD(BRANCH_ZIP,5,0),CONCAT("(",SUBSTRING(BRANCH_PHONE, 1, 3),")",SUBSTRING(BRANCH_PHONE,4,3),"-",SUBSTRING(BRANCH_PHONE,7,4)), LAST_UPDATED FROM cdw_sapp_branch WHERE $CONDITIONS' \
+--append \
+--incremental lastmodified \
+--check-column LAST_UPDATED \
+--last-value '2000-01-01 00:00:00' \
+--target-dir /user/maria_dev/Credit_Card_System/Branch/Optimized \
+-m 1

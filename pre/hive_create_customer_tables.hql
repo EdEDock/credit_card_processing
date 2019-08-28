@@ -1,0 +1,41 @@
+DROP TABLE IF EXISTS CDW_SAPP_D_CUSTOMER_EXTERNAL;
+CREATE EXTERNAL TABLE CDW_SAPP_D_CUSTOMER_EXTERNAL
+	(CUST_SSN INT,
+	 CUST_F_NAME  VARCHAR(40),
+	 CUST_M_NAME  VARCHAR(40),
+	 CUST_L_NAME  VARCHAR(40),
+	 CUST_CC_NO   VARCHAR(16),
+	 CUST_STREET  VARCHAR(38),
+	 CUST_CITY    VARCHAR(30),
+	 CUST_STATE   VARCHAR(30),
+	 CUST_COUNTRY VARCHAR(30),
+     CUST_ZIP     CHAR(5),
+     CUST_PHONE   VARCHAR(8),
+     CUST_EMAIL   VARCHAR(40),
+     LAST_UPDATED TIMESTAMP)	 
+row format delimited 
+fields terminated by ','
+lines terminated by '\n'
+LOCATION "/user/maria_dev/Credit_Card_System/Customer/";
+
+DROP TABLE IF EXISTS CDW_SAPP_D_CUSTOMER;
+SET hive.exec.dynamic.partition=true;
+SET hive.exec.dynamic.partition.mode=nonstrict;
+CREATE TABLE CDW_SAPP_D_CUSTOMER
+	(CUST_SSN INT,
+	 CUST_F_NAME  VARCHAR(40),
+	 CUST_M_NAME  VARCHAR(40),
+	 CUST_L_NAME  VARCHAR(40),
+	 CUST_CC_NO   VARCHAR(16),
+	 CUST_STREET  VARCHAR(38),
+	 CUST_CITY    VARCHAR(30),
+	 CUST_STATE   VARCHAR(30),
+	 CUST_COUNTRY VARCHAR(30),
+     CUST_PHONE   VARCHAR(8),
+     CUST_EMAIL   VARCHAR(40),
+     LAST_UPDATED TIMESTAMP)	 
+PARTITIONED BY (CUST_ZIP CHAR(5))
+row format delimited 
+fields terminated by ','
+lines terminated by '\n'
+LOCATION "/user/maria_dev/Credit_Card_System/Customer/Partitioned";
